@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const Display = ({ query, countries }) => {
-  const searchTerm = countries.filter(country => country.name.toLowerCase().includes(query.toLowerCase())).map(country => <p key={country.alpha3Code}>{country.name}</p>);
+const Display = ({ query, countries, setQuery }) => {
+  const viewCountry = (country) => {
+    setQuery(country);
+  }
+
+  const searchTerm = countries.filter(country => country.name.toLowerCase().includes(query.toLowerCase())).map(country => <p key={country.alpha3Code}>{country.name} <button onClick={() => viewCountry(country.name)}>show</button></p>);
   if (searchTerm.length > 10) {
     return (
       <p>Too many matches, specify another filter</p>
@@ -18,7 +22,7 @@ const Display = ({ query, countries }) => {
         
         <p><strong>Languages:</strong></p>
         <ul>
-          {filteredCountry[0].languages.map(language => <li>{language.name}</li>)}
+          {filteredCountry[0].languages.map(language => <li key={language.iso639_1}>{language.name}</li>)}
         </ul>
         <img src={filteredCountry[0].flag} alt={`${filteredCountry[0].name}'s flag`} height='170px'/>
       </div>
@@ -46,7 +50,7 @@ const App = () => {
   return (
     <div>
       <p>find countries<input value={query} onChange={handleQuery} /></p>
-      <Display query={query} countries={countries} />
+      <Display query={query} setQuery={setQuery} countries={countries} />
     </div>
   )
 }
