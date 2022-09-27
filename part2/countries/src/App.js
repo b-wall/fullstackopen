@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+import CountryInfo from './components/CountryInfo';
 
 const Display = ({ query, countries, setQuery }) => {
   const viewCountry = (country) => {
@@ -14,17 +16,10 @@ const Display = ({ query, countries, setQuery }) => {
   }
   else if (searchTerm.length === 1) {
     const filteredCountry = countries.filter(country => country.alpha3Code === searchTerm[0].key)
+
     return (
       <div>
-        <h1>{filteredCountry[0].name}</h1>
-        <p>Capital: {filteredCountry[0].capital}</p>
-        <p>Area: {filteredCountry[0].area}</p>
-        
-        <p><strong>Languages:</strong></p>
-        <ul>
-          {filteredCountry[0].languages.map(language => <li key={language.iso639_1}>{language.name}</li>)}
-        </ul>
-        <img src={filteredCountry[0].flag} alt={`${filteredCountry[0].name}'s flag`} height='170px'/>
+        <CountryInfo country={filteredCountry[0]} />
       </div>
     )
   }
