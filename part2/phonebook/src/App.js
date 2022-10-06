@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react';
+
+import axios from 'axios';
 
 const Persons = ({ persons, query }) => {
   return (
@@ -31,12 +33,16 @@ const PersonForm = ({ addNote, newName, newNumber, handleNameChange, handleNumbe
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  useEffect(() => {
+    axios.get('http://localhost:3001/persons')
+      .then(response => {
+        setPersons(response.data);
+      })
+  }, [])
+  
+
+
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [query, setQuery] = useState('')
@@ -51,7 +57,7 @@ const App = () => {
 
   const addNote = (e) => {
     e.preventDefault();
-    if (persons.find(person => person.name === newName)) {
+    if (persons.find(person => person.name.toLowerCase() === newName.toLowerCase())) {
       alert(`${newName} is already added to phonebook`);
       setNewName('');
       return
@@ -61,6 +67,11 @@ const App = () => {
       number: newNumber,
       id: (persons.length+1)
     }
+
+    axios.post('http://localhost:3001/persons', noteObject)
+      .then(response => {
+        console.log(response);
+    })
 
     setPersons(persons.concat(noteObject));
     setNewName('');
