@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import axios from 'axios';
+import contactsService from './services/contacts'
 
 const Persons = ({ persons, query }) => {
   return (
@@ -34,10 +34,8 @@ const PersonForm = ({ addNote, newName, newNumber, handleNameChange, handleNumbe
 
 const App = () => {
   useEffect(() => {
-    axios.get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data);
-      })
+    contactsService.getAll()
+    .then(initialContacts => setPersons(initialContacts))
   }, [])
   
 
@@ -68,10 +66,7 @@ const App = () => {
       id: (persons.length+1)
     }
 
-    axios.post('http://localhost:3001/persons', noteObject)
-      .then(response => {
-        console.log(response);
-    })
+    contactsService.create(noteObject)
 
     setPersons(persons.concat(noteObject));
     setNewName('');
