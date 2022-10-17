@@ -17,10 +17,16 @@ const deleteItem = (noteObject) => {
     return request.then(response => console.log(`deleted ${noteObject.name}`))
 }
 
+const updateItem = (noteObject) => {
+    const request = axios.put(`${baseUrl}/${noteObject.id}`, {...noteObject});
+    return request.then(response => response.data)
+}
+
 const contactsService = {
     getAll,
     create,
     deleteItem,
+    updateItem,
 };
 
 export default contactsService

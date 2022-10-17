@@ -5,11 +5,13 @@ import contactsService from './services/contacts';
 const DeleteBtn = ({ person, persons, setPersons }) => {
   const deleteContact = (e) => {
     e.preventDefault();
-    window.confirm(`are you sure you wish to delete ${person.name}?`);
-    contactsService.deleteItem(person);
-    setPersons(current => current.filter(persons => {
+    const confirm = window.confirm(`are you sure you wish to delete ${person.name}?`);
+    if (confirm) {
+      contactsService.deleteItem(person);
+      setPersons(current => current.filter(persons => {
       return persons.id !== person.id;
     }))
+    }
   };
   return (
     <button onClick={deleteContact}>delete</button>
@@ -70,8 +72,14 @@ const App = () => {
   const addContact = (e) => {
     e.preventDefault();
     if (persons.find(person => person.name.toLowerCase() === newName.toLowerCase())) {
-      alert(`${newName} is already added to phonebook`);
+      const confirm = window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`);
+      if (confirm) {
+        const existingPerson = persons.filter(person => person.name.toLowerCase() === newName.toLowerCase());
+        existingPerson[0].number = newNumber;
+        contactsService.updateItem(existingPerson[0])
+      }
       setNewName('');
+      setNewNumber('');
       return
     }
     const noteObject = {
