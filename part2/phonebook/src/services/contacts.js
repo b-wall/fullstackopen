@@ -12,9 +12,15 @@ const create = (noteObject) => {
     return request.then(response => response.data)
 }
 
+const deleteItem = (noteObject) => {
+    const request = axios.delete(`${baseUrl}/${noteObject.id}`);
+    return request.then(response => console.log(`deleted ${noteObject.name}`))
+}
+
 const contactsService = {
     getAll,
     create,
+    deleteItem,
 };
 
 export default contactsService

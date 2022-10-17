@@ -26,39 +26,9 @@
       "id": 5
     },
     {
-      "name": "bob",
-      "number": "123123",
-      "id": 6
-    },
-    {
       "name": "hello",
       "number": "21381293",
       "id": 7
-    },
-    {
-      "name": "Justin ",
-      "number": "12348983402",
-      "id": 8
-    },
-    {
-      "name": "test",
-      "number": "12345",
-      "id": 9
-    },
-    {
-      "name": "asds",
-      "number": "21232",
-      "id": 10
-    },
-    {
-      "name": "123312",
-      "number": "213123",
-      "id": 11
-    },
-    {
-      "name": "231123",
-      "number": "123213",
-      "id": 12
     }
   ]
 }

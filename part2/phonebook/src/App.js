@@ -1,11 +1,25 @@
 import { useState, useEffect } from 'react';
 
-import contactsService from './services/contacts'
+import contactsService from './services/contacts';
 
-const Persons = ({ persons, query }) => {
+const DeleteBtn = ({ person, persons, setPersons }) => {
+  const deleteContact = (e) => {
+    e.preventDefault();
+    window.confirm(`are you sure you wish to delete ${person.name}?`);
+    contactsService.deleteItem(person);
+    setPersons(current => current.filter(persons => {
+      return persons.id !== person.id;
+    }))
+  };
+  return (
+    <button onClick={deleteContact}>delete</button>
+  )
+}
+
+const Persons = ({ persons, query, setPersons }) => {
   return (
     <div>
-      {persons.filter(person => person.name.toLowerCase().includes(query.toLowerCase())).map(person => <p key={person.id}>  {person.name} {person.number}</p>)}
+      {persons.filter(person => person.name.toLowerCase().includes(query.toLowerCase())).map(person => <p key={person.id}>  {person.name} {person.number} <DeleteBtn person={person} persons={persons} setPersons={setPersons} /></p>)}
     </div>
   )
 }
@@ -16,9 +30,9 @@ const Filter = ({ query, handleSearch }) => {
   )
 }
 
-const PersonForm = ({ addNote, newName, newNumber, handleNameChange, handleNumberChange}) => {
+const PersonForm = ({ addContact, newName, newNumber, handleNameChange, handleNumberChange}) => {
   return (
-    <form onSubmit={addNote}>
+    <form onSubmit={addContact}>
       <div>
         name: <input value={newName} onChange={handleNameChange} />
       </div>
@@ -53,7 +67,7 @@ const App = () => {
     setNewNumber(e.target.value)
   };
 
-  const addNote = (e) => {
+  const addContact = (e) => {
     e.preventDefault();
     if (persons.find(person => person.name.toLowerCase() === newName.toLowerCase())) {
       alert(`${newName} is already added to phonebook`);
@@ -83,9 +97,9 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter query={query} handleSearch={handleSearch} />
       <h2>Add New Number</h2>
-      <PersonForm addNote={addNote} newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
+      <PersonForm addContact={addContact} newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
       <h2>Numbers</h2>
-      <Persons persons={persons} query={query} />
+      <Persons persons={persons} setPersons={setPersons} query={query} />
     </div>
   )
 }
