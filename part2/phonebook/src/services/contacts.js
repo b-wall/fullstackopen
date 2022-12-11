@@ -14,7 +14,7 @@ const create = (noteObject) => {
 
 const deleteItem = (noteObject) => {
     const request = axios.delete(`${baseUrl}/${noteObject.id}`);
-    return request.then(response => console.log(`deleted ${noteObject.name}`))
+    return request.then(response => console.log(`deleted ${noteObject.name}`));
 }
 
 const updateItem = (noteObject) => {

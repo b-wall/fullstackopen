@@ -2,12 +2,30 @@ import { useState, useEffect } from 'react';
 
 import contactsService from './services/contacts';
 
-const DeleteBtn = ({ person, persons, setPersons }) => {
+const Notification = ({ message, messageClass }) => {
+  if (message == null) {
+    return null
+  }
+
+  return (
+    <div className={messageClass}>
+      {message}
+    </div>
+  )
+}
+
+const DeleteBtn = ({ person, persons, setPersons, message, messageClass, setMessage, setMessageClass}) => {
   const deleteContact = (e) => {
     e.preventDefault();
     const confirm = window.confirm(`are you sure you wish to delete ${person.name}?`);
     if (confirm) {
       contactsService.deleteItem(person);
+      setMessageClass('error');
+      setMessage(`${person.name} has been deleted`);
+      setTimeout(() => {
+        setMessageClass(null);
+        setMessage(null);
+      }, 5000);
       setPersons(current => current.filter(persons => {
       return persons.id !== person.id;
     }))
@@ -18,10 +36,10 @@ const DeleteBtn = ({ person, persons, setPersons }) => {
   )
 }
 
-const Persons = ({ persons, query, setPersons }) => {
+const Persons = ({ persons, query, setPersons, message, messageClass, setMessage, setMessageClass }) => {
   return (
     <div>
-      {persons.filter(person => person.name.toLowerCase().includes(query.toLowerCase())).map(person => <p key={person.id}>  {person.name} {person.number} <DeleteBtn person={person} persons={persons} setPersons={setPersons} /></p>)}
+      {persons.filter(person => person.name.toLowerCase().includes(query.toLowerCase())).map(person => <p className='contact' key={person.id}>  {person.name} {person.number} <DeleteBtn person={person} persons={persons} setPersons={setPersons} message={message} messageClass={messageClass} setMessage={setMessage} setMessageClass={setMessageClass} /></p>)}
     </div>
   )
 }
@@ -60,6 +78,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [query, setQuery] = useState('')
+  const [message, setMessage] = useState(null)
+  const [messageClass, setMessageClass] = useState(null)
 
   const handleNameChange = (e) => {
     setNewName(e.target.value)
@@ -77,11 +97,27 @@ const App = () => {
         const existingPerson = persons.filter(person => person.name.toLowerCase() === newName.toLowerCase());
         existingPerson[0].number = newNumber;
         contactsService.updateItem(existingPerson[0])
+        .catch(error => {
+          setMessageClass('error');
+          setMessage(`Error: ${existingPerson[0].name} has already been deleted`);
+          setTimeout(() => {
+            setMessage(null);
+            setMessageClass(null);
+          }, 5000);
+          return
+        });
       }
+      setMessageClass('success');
+      setMessage(`Edited ${newName} successfully`);
+      setTimeout(() => {
+        setMessage(null);
+        setMessageClass(null);
+      }, 5000);
       setNewName('');
       setNewNumber('');
       return
     }
+
     const noteObject = {
       name: newName,
       number: newNumber,
@@ -90,6 +126,12 @@ const App = () => {
 
     contactsService.create(noteObject)
 
+    setMessageClass('success');
+    setMessage(`Added ${newName} successfully`);
+    setTimeout(() => {
+      setMessage(null);
+      setMessageClass(null);
+    }, 5000);
     setPersons(persons.concat(noteObject));
     setNewName('');
     setNewNumber('');
@@ -102,12 +144,13 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
+      <Notification message={message} messageClass={messageClass}/>
+      <h1>Phonebook</h1>
       <Filter query={query} handleSearch={handleSearch} />
       <h2>Add New Number</h2>
       <PersonForm addContact={addContact} newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
       <h2>Numbers</h2>
-      <Persons persons={persons} setPersons={setPersons} query={query} />
+      <Persons persons={persons} setPersons={setPersons} query={query} message={message} setMessage={setMessage} messageClass={messageClass} setMessageClass={setMessageClass}/>
     </div>
   )
 }
