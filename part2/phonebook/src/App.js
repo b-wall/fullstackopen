@@ -124,7 +124,18 @@ const App = () => {
       id: (persons.length+1)
     }
 
-    contactsService.create(noteObject)
+    contactsService.create(noteObject).catch(err => {
+      setMessageClass('error')
+      setMessage(err.response.data.error)
+      setNewName('')
+      setNewNumber('')
+      setTimeout(() => {
+        setMessage(null)
+        setMessageClass(null)
+      }, 5000)
+      setPersons(persons.filter(person => person !== noteObject))
+      return
+    });
 
     setMessageClass('success');
     setMessage(`Added ${newName} successfully`);
