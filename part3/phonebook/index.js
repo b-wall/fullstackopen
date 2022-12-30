@@ -11,12 +11,16 @@ app.use(express.static('build'));
 
 const Person = require('./models/person')
 
+// Get all phonebook contacts
+
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(people => {
     response.json(people);
   })
   .catch(err => next(err))
 });
+
+// Get an individual contact
 
 app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id).then(person => {
@@ -29,6 +33,25 @@ app.get('/api/persons/:id', (request, response, next) => {
   .catch(err => next(err))
 });
 
+// Update a contact 
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
+
+  const person = {
+    name: body.name,
+    number: body.number
+  }
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(err => next(err))
+});
+
+// Delete a contact
+
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
   .then(result => {
@@ -36,6 +59,8 @@ app.delete('/api/persons/:id', (request, response, next) => {
   })
   .catch(err => next(err))
 });
+
+// Add a new contact
 
 app.post('/api/persons/', (request, response, next) => {
   const body = request.body;
@@ -53,6 +78,17 @@ app.post('/api/persons/', (request, response, next) => {
   })
 });
 
+// Info about entries
+
+app.get('/info', (request, response) => {
+  Person.count({}, function(err, count) {
+    const date = new Date();
+
+    response.send(`Phonebook has info for ${count} people <br> ${date}`);
+  })
+});
+
+// Error handling
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
