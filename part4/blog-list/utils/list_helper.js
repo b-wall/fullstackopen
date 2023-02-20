@@ -35,18 +35,25 @@ const mostBlogs = (blogs) => {
     }
   })
   const topAuthor = formattedAuthors.reduce((acc, post) => post.blogs > acc.blogs ? post : acc)
-  console.log(topAuthor)
   return topAuthor
 }
 
-// {
-//   author: "Robert C. Martin",
-//   blogs: 3
-// }
+const mostLikes = (blogs) => {
+  const cleanedAuthors = blogs.reduce((acc, blog) => {
+    const key = blog.author
+    const value = acc[key] || 0
+    return {...acc, [key]: value + blog.likes}
+  }, {})
+
+  const formattedAuthors = Object.entries(cleanedAuthors).map(([key, value]) => ({author: key, likes: value}))
+  .reduce((acc, author) => author.likes > acc.likes ? author : acc)
+  return formattedAuthors
+}
 
 module.exports = {
   dummy,
   totalLikes,
   favouriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
