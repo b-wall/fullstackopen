@@ -5,6 +5,7 @@ const supertest = require("supertest");
 const app = require("../app");
 const api = supertest(app);
 const Blog = require("../models/blog");
+const helper = require("../utils/list_helper");
 
 describe("when there is initially one user in db", () => {
   beforeEach(async () => {
@@ -55,7 +56,84 @@ describe("when there is initially one user in db", () => {
 
     expect(result.body.error).toContain("expected `username` to be unique");
 
-    const usersAtEnd = helper.usersInDb();
+    const usersAtEnd = await helper.usersInDb();
+    expect(usersAtEnd).toEqual(usersAtStart);
+  });
+});
+
+describe("username and password checking", () => {
+  test("creation fails with a username under 3 characters long, and returns correct status message", async () => {
+    const usersAtStart = await helper.usersInDb();
+    const invalidUsernameNewUser = {
+      username: "m",
+      name: "Matti Luukkainen",
+      password: "salainen",
+    };
+
+    const result = await api
+      .post("/api/users")
+      .send(invalidUsernameNewUser)
+      .expect(401);
+
+    expect(result.body).toContain(
+      "invalid username, make sure you enter something, and that it is at least 3 characters long."
+    );
+    const usersAtEnd = await helper.usersInDb();
+    expect(usersAtEnd).toEqual(usersAtStart);
+  });
+  test("creation fails when a username isn't inputted, and returns correct status message", async () => {
+    const usersAtStart = await helper.usersInDb();
+    const invalidUsernameNewUser = {
+      name: "Matti Luukkainen",
+      password: "salainen",
+    };
+
+    const result = await api
+      .post("/api/users")
+      .send(invalidUsernameNewUser)
+      .expect(401);
+
+    expect(result.body).toContain(
+      "invalid username, make sure you enter something, and that it is at least 3 characters long."
+    );
+    const usersAtEnd = await helper.usersInDb();
+    expect(usersAtEnd).toEqual(usersAtStart);
+  });
+  test("creation fails with a password under 3 characters long, and returns correct status message", async () => {
+    const usersAtStart = await helper.usersInDb();
+    const invalidPasswordNewUser = {
+      username: "mluukkai",
+      name: "Matti Luukkainen",
+      password: "s",
+    };
+
+    const result = await api
+      .post("/api/users")
+      .send(invalidPasswordNewUser)
+      .expect(401);
+
+    expect(result.body).toContain(
+      "invalid password, make sure you enter something, and that it is at least 3 characters long."
+    );
+    const usersAtEnd = await helper.usersInDb();
+    expect(usersAtEnd).toEqual(usersAtStart);
+  });
+  test("creation fails when a password isn't inputted, and returns correct status message", async () => {
+    const usersAtStart = await helper.usersInDb();
+    const invalidPasswordNewUser = {
+      username: "mluukkai",
+      name: "Matti Luukkainen",
+    };
+
+    const result = await api
+      .post("/api/users")
+      .send(invalidPasswordNewUser)
+      .expect(401);
+
+    expect(result.body).toContain(
+      "invalid password, make sure you enter something, and that it is at least 3 characters long."
+    );
+    const usersAtEnd = await helper.usersInDb();
     expect(usersAtEnd).toEqual(usersAtStart);
   });
 });
