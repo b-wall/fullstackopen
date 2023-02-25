@@ -36,6 +36,11 @@ const testBlogPostNoLikes = {
   url: "http://google.com",
 };
 
+const badBlogPost = {
+  author: "Testo",
+  likes: 12,
+};
+
 beforeEach(async () => {
   await Blog.deleteMany({});
 
@@ -87,6 +92,12 @@ test("if likes property is missing, will default to 0", async () => {
   console.log(result.body);
 
   expect(result.body.likes).toStrictEqual(0);
+}, 100000);
+
+test("backend responds with 400 Bad Request when given no url or title field", async () => {
+  console.log("entered test");
+
+  const result = await api.post("/api/blogs").send(badBlogPost).expect(400);
 }, 100000);
 
 afterAll(async () => {
