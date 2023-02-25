@@ -100,6 +100,18 @@ test("backend responds with 400 Bad Request when given no url or title field", a
   const result = await api.post("/api/blogs").send(badBlogPost).expect(400);
 }, 100000);
 
+test("blog object is deleted when id is provided", async () => {
+  console.log("entered test");
+  const blogs = await Blog.find({});
+  const id = "65f7e6bfd2e9c30d1025689a";
+  await api.delete(`/api/blogs/${id}`).expect(204);
+  const updatedBlogs = await Blog.find({});
+
+  expect(parseInt(updatedBlogs.length)).toStrictEqual(
+    parseInt(blogs.length - 1)
+  );
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
