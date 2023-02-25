@@ -50,66 +50,79 @@ beforeEach(async () => {
   }
 });
 
-test("blogs are returned as json", async () => {
-  await api
-    .get("/api/blogs")
-    .expect(200)
-    .expect("Content-Type", /application\/json/);
+describe("when blogs exist", () => {
+  test("blogs are returned as json", async () => {
+    await api
+      .get("/api/blogs")
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
+  });
+  test("id property exists on blog objects", async () => {
+    console.log("entered test");
+    const blogs = await api.get("/api/blogs");
+
+    for (const blog of blogs.body) {
+      expect(blog.id).toBeDefined();
+    }
+  }, 100000);
+  test("if likes property is missing, will default to 0", async () => {
+    console.log("entered test");
+    const blogs = await api.get("/api/blogs");
+
+    const result = await api
+      .post("/api/blogs")
+      .send(testBlogPostNoLikes)
+      .expect(201);
+    console.log(result.body);
+
+    expect(result.body.likes).toStrictEqual(0);
+  }, 100000);
 });
 
-test("id property exists on blog objects", async () => {
-  console.log("entered test");
-  const blogs = await api.get("/api/blogs");
+describe("http responses", () => {
+  test("http POST request successfully creates a new blog post", async () => {
+    console.log("entered test");
+    const blogs = await api.get("/api/blogs");
 
-  for (const blog of blogs.body) {
-    expect(blog.id).toBeDefined();
-  }
-}, 100000);
+    const result = await api.post("/api/blogs").send(testBlogPost).expect(201);
 
-test("http POST request successfully creates a new blog post", async () => {
-  console.log("entered test");
-  const blogs = await api.get("/api/blogs");
+    expect(result.body.title).toStrictEqual("test");
+    expect(result.body.author).toStrictEqual("Testo");
 
-  const result = await api.post("/api/blogs").send(testBlogPost).expect(201);
+    const updatedBlogs = await api.get("/api/blogs");
+    expect(parseInt(updatedBlogs.length)).toStrictEqual(
+      parseInt(blogs.length + 1)
+    );
+  }, 100000);
 
-  expect(result.body.title).toStrictEqual("test");
-  expect(result.body.author).toStrictEqual("Testo");
+  test("backend responds with 400 Bad Request when given no url or title field", async () => {
+    console.log("entered test");
 
-  const updatedBlogs = await api.get("/api/blogs");
-  expect(parseInt(updatedBlogs.length)).toStrictEqual(
-    parseInt(blogs.length + 1)
-  );
-}, 100000);
+    const result = await api.post("/api/blogs").send(badBlogPost).expect(400);
+  }, 100000);
+});
 
-test("if likes property is missing, will default to 0", async () => {
-  console.log("entered test");
-  const blogs = await api.get("/api/blogs");
+describe("individual notes", () => {
+  test("blog object is deleted when id is provided", async () => {
+    console.log("entered test");
+    const blogs = await Blog.find({});
+    const id = "65f7e6bfd2e9c30d1025689a";
+    await api.delete(`/api/blogs/${id}`).expect(204);
+    const updatedBlogs = await Blog.find({});
 
-  const result = await api
-    .post("/api/blogs")
-    .send(testBlogPostNoLikes)
-    .expect(201);
-  console.log(result.body);
-
-  expect(result.body.likes).toStrictEqual(0);
-}, 100000);
-
-test("backend responds with 400 Bad Request when given no url or title field", async () => {
-  console.log("entered test");
-
-  const result = await api.post("/api/blogs").send(badBlogPost).expect(400);
-}, 100000);
-
-test("blog object is deleted when id is provided", async () => {
-  console.log("entered test");
-  const blogs = await Blog.find({});
-  const id = "65f7e6bfd2e9c30d1025689a";
-  await api.delete(`/api/blogs/${id}`).expect(204);
-  const updatedBlogs = await Blog.find({});
-
-  expect(parseInt(updatedBlogs.length)).toStrictEqual(
-    parseInt(blogs.length - 1)
-  );
+    expect(parseInt(updatedBlogs.length)).toStrictEqual(
+      parseInt(blogs.length - 1)
+    );
+  });
+  test("blog's likes are updated when given a new value", async () => {
+    console.log("entered test");
+    const id = "63f7e6bfd2e9c30d1025689a";
+    const newLikes = {
+      likes: 12345,
+    };
+    const result = await api.put(`/api/blogs/${id}`).send(newLikes);
+    expect(result.body.likes).toStrictEqual(newLikes.likes);
+  });
 });
 
 afterAll(async () => {
