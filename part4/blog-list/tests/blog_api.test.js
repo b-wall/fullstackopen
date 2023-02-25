@@ -30,6 +30,12 @@ const testBlogPost = {
   likes: 200000,
 };
 
+const testBlogPostNoLikes = {
+  title: "test",
+  author: "Testo",
+  url: "http://google.com",
+};
+
 beforeEach(async () => {
   await Blog.deleteMany({});
 
@@ -68,6 +74,19 @@ test("http POST request successfully creates a new blog post", async () => {
   expect(parseInt(updatedBlogs.length)).toStrictEqual(
     parseInt(blogs.length + 1)
   );
+}, 100000);
+
+test("if likes property is missing, will default to 0", async () => {
+  console.log("entered test");
+  const blogs = await api.get("/api/blogs");
+
+  const result = await api
+    .post("/api/blogs")
+    .send(testBlogPostNoLikes)
+    .expect(201);
+  console.log(result.body);
+
+  expect(result.body.likes).toStrictEqual(0);
 }, 100000);
 
 afterAll(async () => {
