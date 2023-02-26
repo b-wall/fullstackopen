@@ -3,12 +3,14 @@ const usersRouter = require("express").Router();
 const User = require("../models/user");
 
 usersRouter.get("/", async (request, response) => {
-  const users = await User.find({});
+  const users = await User.find({}).populate("blogs");
   response.json(users);
 });
 
 usersRouter.post("/", async (request, response) => {
+  console.log(request);
   const { username, name, password } = request.body;
+  console.log(username, name, password);
 
   if (!username || username.length < 3) {
     return response
